@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\Glyphore.ico</ApplicationIcon>
+    <AssemblyName>Glyphore</AssemblyName>
+    <RootNamespace>Glyphore</RootNamespace>
+    <Product>Glyphoré</Product>
+    <Title>Glyphoré</Title>
+    <Description>GPU-accelerated procedural character art studio for Windows.</Description>
+    <RepositoryUrl>https://github.com/saturnus25/Glyphore</RepositoryUrl>
+    <Version>6.0.0</Version>
+    <AssemblyVersion>6.0.0.0</AssemblyVersion>
+    <FileVersion>6.0.0.0</FileVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Figgle" Version="0.6.6" />
+    <PackageReference Include="Figgle.Fonts" Version="0.6.6" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Data\*.json" />
+    <EmbeddedResource Include="Shaders\*.glsl" />
+    <EmbeddedResource Include="Assets\Glyphore.ico" LogicalName="Glyphore.AppIcon.ico" />
+    <EmbeddedResource Include="Assets\Glyphore-Icon-1024.png" LogicalName="Glyphore.BrandIcon.png" />
+    <EmbeddedResource Include="Licenses\*.txt">
+      <LogicalName>Glyphore.Licenses.%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+</Project>

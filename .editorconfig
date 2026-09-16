@@ -1,0 +1,21 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = crlf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.cs]
+indent_style = space
+indent_size = 4
+csharp_new_line_before_open_brace = all
+csharp_style_namespace_declarations = file_scoped:suggestion
+csharp_style_var_for_built_in_types = false:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_style_var_elsewhere = false:suggestion
+dotnet_sort_system_directives_first = true
+
+[*.{json,glsl,md,ps1}]
+indent_style = space
+indent_size = 2
