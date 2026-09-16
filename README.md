@@ -1,6 +1,8 @@
 <p align="center">
   <img src="Glyphore/Assets/Glyphore-Logo.png" alt="Glyphoré — Procedural Character Art Studio" width="920" />
 </p>
+<img width="1919" height="1031" alt="image" src="https://github.com/user-attachments/assets/d263a8c4-4f83-4c56-bad4-251845e8e820" />
+
 
 # Glyphoré 6.0.0
 
