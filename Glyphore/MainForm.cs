@@ -40,7 +40,7 @@ internal sealed partial class MainForm : GlyphoreWindow
         _discordPresence = new DiscordRichPresenceService(_preferences.DiscordRichPresenceEnabled);
         _discordActivityFilter = new GlyphoreActivityMessageFilter(_discordPresence);
 
-        Text = "Glyphoré 6.0.0";
+        Text = "Glyphoré 6.0.1";
         Width = 1640;
         Height = 980;
         MinimumSize = new Size(1240, 760);

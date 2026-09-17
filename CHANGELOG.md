@@ -2,6 +2,12 @@
 
 All notable changes to Glyphoré are documented in this file.
 
+## 6.0.1
+
+- Fixed an OpenGL shader compilation failure on drivers that reserve the GLSL identifier `active`.
+- Renamed the Lightning shader's local `active` variable to `strikeActive` without changing the effect's timing or appearance.
+- Updated application, assembly, file, manifest, build and documentation versions to 6.0.1.
+
 ## 6.0.0
 
 This release contains the changes made since AsciiForge 5.2.0.

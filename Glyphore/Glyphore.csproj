@@ -15,9 +15,9 @@
     <Title>Glyphoré</Title>
     <Description>GPU-accelerated procedural character art studio for Windows.</Description>
     <RepositoryUrl>https://github.com/saturnus25/Glyphore</RepositoryUrl>
-    <Version>6.0.0</Version>
-    <AssemblyVersion>6.0.0.0</AssemblyVersion>
-    <FileVersion>6.0.0.0</FileVersion>
+    <Version>6.0.1</Version>
+    <AssemblyVersion>6.0.1.0</AssemblyVersion>
+    <FileVersion>6.0.1.0</FileVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Figgle" Version="0.6.6" />

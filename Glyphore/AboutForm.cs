@@ -63,7 +63,7 @@ internal sealed class AboutForm : GlyphoreWindow
         };
         identity.Controls.Add(brand, 0, 0);
 
-        string version = typeof(AboutForm).Assembly.GetName().Version?.ToString(3) ?? "6.0.0";
+        string version = typeof(AboutForm).Assembly.GetName().Version?.ToString(3) ?? "6.0.1";
         var identityText = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,

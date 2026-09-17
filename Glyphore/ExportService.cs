@@ -11,7 +11,7 @@ internal sealed record TextExportOptions(bool PseudoTransparency = false, Color 
 
 internal static partial class ExportService
 {
-    private const string GeneratorName = "Glyphoré 6.0.0";
+    private const string GeneratorName = "Glyphoré 6.0.1";
     private const int FileBufferSize = 1 << 16;
     private const int TextBufferSize = 1 << 14;
     private const int StreamingFlushInterval = 32;

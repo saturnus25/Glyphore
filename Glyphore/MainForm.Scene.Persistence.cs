@@ -146,7 +146,7 @@ internal sealed partial class MainForm
     private void UpdateSceneWindowTitle()
     {
         Text = string.IsNullOrWhiteSpace(_scenePath)
-            ? "Glyphoré 6.0.0"
-            : $"Glyphoré 6.0.0 — {Path.GetFileName(_scenePath)}";
+            ? "Glyphoré 6.0.1"
+            : $"Glyphoré 6.0.1 — {Path.GetFileName(_scenePath)}";
     }
 }

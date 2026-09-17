@@ -452,9 +452,10 @@ float lightningField(vec2 p){
   float maxStart=max(0.0,.94-durationNorm);
   float start=.03+maxStart*chaos*hash11(seed+17.4);
   float since=age-start;
-  float active=step(0.0,since)*step(since,durationNorm);
+  // `active` is reserved by some GLSL compilers, so keep this identifier portable.
+  float strikeActive=step(0.0,since)*step(since,durationNorm);
   float normalizedAge=clamp(since/max(.001,durationNorm),0.0,1.0);
-  float envelope=active*pow(1.0-normalizedAge,.42);
+  float envelope=strikeActive*pow(1.0-normalizedAge,.42);
 
   // Per-strike variation becomes stronger as flicker chaos increases.
   float strengthVariation=mix(1.0,.55+1.05*hash11(seed+31.9),chaos);
