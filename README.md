@@ -8,7 +8,7 @@
 
 **English** | [Español](#español)
 
-Glyphoré is a GPU-accelerated procedural character art studio for Windows. It lets you create, customize, animate and export ASCII/Unicode scenes without having to program the effects yourself.
+Glyphoré is a GPU-accelerated procedural character art studio developed and officially supported for Windows. It lets you create, customize, animate and export ASCII/Unicode scenes without having to program the effects yourself. Glyphoré has also been confirmed to run on Linux through Wine, although Wine compatibility is currently experimental and some features or visual behavior may differ from Windows.
 
 The live preview is rendered directly with OpenGL, while exported character output remains real selectable and copyable text.
 
@@ -21,6 +21,7 @@ The live preview is rendered directly with OpenGL, while exported character outp
 - 22 color palettes and 27 character ramps
 - Spanish and English interface
 - Self-contained Windows x64 builds
+- Experimental Linux compatibility through Wine (no native Linux build)
 - FIGlet/ASCII title rendering through Figgle 0.6.6 (Apache-2.0)
 
 Effects include 3D shapes, procedural terrain, SDF scenes, Warp Grid 3D, fire, fireworks, lightning, oceans and waves, cellular automata, fractals, flow fields, configurable galaxies and black holes, oscilloscopes, strange attractors, Voronoi cells, auroras, snowstorms, DNA helices, Conway-style life, reaction-diffusion patterns, boid flocks, orbital systems, falling sand, cloth, volumetric clouds, procedural cities, an advanced Raymarch Lab and more.
@@ -211,10 +212,18 @@ dist\Glyphore-6.0.1-win-x64.zip
 
 ## Requirements
 
+### Windows
+
 - Windows x64
 - OpenGL 3.3 capable GPU and driver
 
-The self-contained Release build does not require a separate .NET installation.
+The self-contained Release build does not require a separate .NET installation. Windows is the primary and officially supported platform.
+
+### Linux through Wine (experimental)
+
+Glyphoré has been confirmed to run on Linux through **Wine** using the Windows x64 build. There is currently no native Linux build. Compatibility is considered experimental: core functionality may work correctly while some UI behavior, rendering details, integrations or platform-specific features can differ depending on the Wine version, desktop environment, GPU driver and system configuration.
+
+Wine users still need working OpenGL 3.3 support through their Linux graphics stack.
 
 ## Troubleshooting
 
@@ -226,6 +235,8 @@ If Glyphoré encounters an unhandled startup or UI error, diagnostic information
 
 When reporting rendering problems, including the GPU model, driver version, affected effect/preset and a screenshot is useful.
 
+On Linux/Wine, also include the Linux distribution, Wine version, desktop environment/session (X11 or Wayland when relevant) and whether the same issue occurs on Windows. Wine-specific issues are welcome, but they may not always reproduce on the officially supported Windows build.
+
 ## License
 
 Glyphoré source code is licensed under the [MIT License](LICENSE).
@@ -236,7 +247,7 @@ Third-party component licenses can be reviewed offline from **About → Third-Pa
 
 # Español
 
-Glyphoré es un estudio de arte procedural con caracteres acelerado por GPU para Windows. Permite crear, modificar, animar y exportar escenas ASCII/Unicode sin tener que programar los efectos manualmente.
+Glyphoré es un estudio de arte procedural con caracteres acelerado por GPU desarrollado y soportado oficialmente para Windows. Permite crear, modificar, animar y exportar escenas ASCII/Unicode sin tener que programar los efectos manualmente. También se ha confirmado que Glyphoré puede ejecutarse en Linux mediante Wine, aunque esta compatibilidad se considera actualmente experimental y algunas funciones o comportamientos visuales pueden diferir respecto a Windows.
 
 La vista previa se renderiza directamente con OpenGL, mientras que las exportaciones siguen siendo texto real, seleccionable y copiable.
 
@@ -249,6 +260,7 @@ La vista previa se renderiza directamente con OpenGL, mientras que las exportaci
 - 22 paletas de color y 27 rampas de caracteres
 - Interfaz en español e inglés
 - Builds self-contained para Windows x64
+- Compatibilidad experimental con Linux mediante Wine (sin build nativa para Linux)
 - Renderizado FIGlet/títulos ASCII mediante Figgle 0.6.6 (Apache-2.0)
 
 Entre los efectos se incluyen figuras 3D, terreno procedural, escenas SDF, Warp Grid 3D, fuego, fireworks, rayos, océanos y ondas, autómatas celulares, fractales, flow fields, galaxias y agujeros negros configurables, osciloscopios, strange attractors, celdas Voronoi, auroras, tormentas de nieve, hélices de ADN, patrones tipo Conway, reaction-diffusion, enjambres boid, sistemas orbitales, arena, tela, nubes volumétricas, ciudades procedurales, un Raymarch Lab avanzado y más.
@@ -439,10 +451,18 @@ dist\Glyphore-6.0.1-win-x64.zip
 
 ## Requisitos
 
+### Windows
+
 - Windows x64
 - GPU y driver compatibles con OpenGL 3.3
 
-La build self-contained no requiere instalar .NET por separado.
+La build self-contained no requiere instalar .NET por separado. Windows es la plataforma principal y la única soportada oficialmente.
+
+### Linux mediante Wine (experimental)
+
+Se ha confirmado que Glyphoré puede ejecutarse en Linux mediante **Wine** utilizando la build de Windows x64. Actualmente no existe una build nativa para Linux. La compatibilidad se considera experimental: las funciones principales pueden funcionar correctamente, pero algunos comportamientos de la interfaz, detalles de renderizado, integraciones o funciones específicas de la plataforma pueden variar según la versión de Wine, el entorno de escritorio, el driver de la GPU y la configuración del sistema.
+
+Los usuarios de Wine siguen necesitando soporte funcional de OpenGL 3.3 mediante la pila gráfica de Linux.
 
 ## Solución de problemas
 
@@ -453,6 +473,8 @@ Si Glyphoré encuentra un error no controlado durante el arranque o en la interf
 ```
 
 Al reportar problemas gráficos, resulta útil incluir el modelo de GPU, versión del driver, efecto/preset afectado y una captura.
+
+En Linux/Wine, incluye también la distribución de Linux, versión de Wine, entorno de escritorio/sesión (X11 o Wayland cuando sea relevante) y si el mismo problema ocurre también en Windows. Los problemas específicos de Wine son bienvenidos, aunque no siempre podrán reproducirse en la build de Windows soportada oficialmente.
 
 ## Licencia
 
