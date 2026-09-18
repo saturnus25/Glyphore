@@ -1,7 +1,7 @@
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 $project = Join-Path $root 'Glyphore\Glyphore.csproj'
-$version = '6.0.1'
+$version = '6.0.2'
 Write-Host "Building Glyphore $version..." -ForegroundColor Cyan
 
 if (-not (Get-Command dotnet -ErrorAction SilentlyContinue)) {

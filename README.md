@@ -4,7 +4,7 @@
 <img width="1919" height="1031" alt="image" src="https://github.com/user-attachments/assets/d263a8c4-4f83-4c56-bad4-251845e8e820" />
 
 
-# Glyphoré 6.0.1
+# Glyphoré 6.0.2
 
 **English** | [Español](#español)
 
@@ -207,7 +207,7 @@ publish\win-x64\Glyphore.exe
 The build script also creates:
 
 ```text
-dist\Glyphore-6.0.1-win-x64.zip
+dist\Glyphore-6.0.2-win-x64.zip
 ```
 
 ## Requirements
@@ -446,7 +446,7 @@ publish\win-x64\Glyphore.exe
 El script también genera:
 
 ```text
-dist\Glyphore-6.0.1-win-x64.zip
+dist\Glyphore-6.0.2-win-x64.zip
 ```
 
 ## Requisitos

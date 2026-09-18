@@ -2,13 +2,17 @@
 
 All notable changes to Glyphoré are documented in this file.
 
+## 6.0.2
+
+- Fixed a WinForms handle leak caused by repeated dynamic UI rebuilds that could eventually crash Glyphoré with "Error creating window handle".
+- Made user-entered spaces in FIGlet ASCII Titles produce a consistent, clearly visible word gap separately from letter spacing, including after auto-fit.
+- Fixed animated HTML exports that could remain on frame zero with an invalid FPS and reduced browser load by updating the DOM only when the displayed frame changes.
+- Updated application, assembly, file, manifest, build and documentation versions to 6.0.2.
+
 ## 6.0.1
 
 - Fixed an OpenGL shader compilation failure on drivers that reserve the GLSL identifier `active`.
 - Renamed the Lightning shader's local `active` variable to `strikeActive` without changing the effect's timing or appearance.
-- Fixed a WinForms handle leak caused by repeated dynamic UI rebuilds that could eventually crash Glyphoré with "Error creating window handle".
-- Made user-entered spaces in FIGlet ASCII Titles produce a consistent, clearly visible word gap independently from letter spacing, including after auto-fit.
-- Fixed animated HTML exports that could remain on frame zero with an invalid FPS and reduced browser load by updating the DOM only when the displayed frame changes.
 - Updated application, assembly, file, manifest, build and documentation versions to 6.0.1.
 
 ## 6.0.0

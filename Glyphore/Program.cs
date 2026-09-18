@@ -111,7 +111,7 @@ internal static class Program
         {
             MessageBox.Show(
                 $"Glyphoré could not continue.\n\n{exception.Message}\n\nCrash log:\n{CrashLogPath}",
-                "Glyphoré 6.0.1",
+                "Glyphoré 6.0.2",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Error);
         }
