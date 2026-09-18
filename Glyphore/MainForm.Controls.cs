@@ -2,6 +2,32 @@ namespace Glyphore;
 
 internal sealed partial class MainForm
 {
+    private void DisposeDynamicChildren(Control parent)
+    {
+        parent.SuspendLayout();
+        try
+        {
+            while (parent.Controls.Count > 0)
+            {
+                Control child = parent.Controls[parent.Controls.Count - 1];
+                RemoveSharedToolTips(child);
+                parent.Controls.RemoveAt(parent.Controls.Count - 1);
+                child.Dispose();
+            }
+        }
+        finally
+        {
+            parent.ResumeLayout(performLayout: false);
+        }
+    }
+
+    private void RemoveSharedToolTips(Control control)
+    {
+        foreach (Control child in control.Controls)
+            RemoveSharedToolTips(child);
+        _tips.SetToolTip(control, null);
+    }
+
     private ThemedGroupBox Group(string title, int height)
     {
         return new ThemedGroupBox

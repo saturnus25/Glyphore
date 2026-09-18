@@ -41,6 +41,9 @@ internal static partial class ExportService
     private static bool ShouldFlushFrame(int frameIndex, int frameCount)
         => ((frameIndex + 1) % StreamingFlushInterval) == 0 || frameIndex == frameCount - 1;
 
+    internal static int GetEffectiveFps(int requestedFps)
+        => Math.Max(1, requestedFps);
+
     public static bool SupportsPseudoTransparency(string path)
         => ResolveFormat(path) is TextExportFormat.PowerShell or TextExportFormat.CSharp or TextExportFormat.Ansi;
 

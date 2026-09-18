@@ -74,6 +74,7 @@ internal sealed partial class MainForm
             var exportSettings = exportScene is { Layers.Count: > 0 }
                 ? exportScene.CreateSettings(exportScene.ActiveLayer ?? exportScene.Layers[0])
                 : _settings.Clone();
+            exportSettings.Fps = ExportService.GetEffectiveFps(exportSettings.Fps);
             int exportedFrameCount;
 
             // Native scene raster/video exports are streamed one frame at a time. The previous
@@ -92,7 +93,7 @@ internal sealed partial class MainForm
                     frameCount,
                     (index, reusableRgba) => _preview.CaptureRasterExportFrame(
                         sceneSnapshot,
-                        index / (double)exportSettings.Fps,
+                        index / (double)ExportService.GetEffectiveFps(exportSettings.Fps),
                         rasterSnapshot.BackgroundMode,
                         rasterSnapshot.SolidColor,
                         reusableRgba),
@@ -138,7 +139,7 @@ internal sealed partial class MainForm
                         frameCount,
                         index =>
                         {
-                            double time = index / (double)Math.Max(1, exportSettings.Fps);
+                            double time = index / (double)ExportService.GetEffectiveFps(exportSettings.Fps);
                             return exportScene is not null
                                 ? _preview.CaptureExportFrame(exportScene, time)
                                 : _preview.CaptureExportFrame(time);
@@ -177,7 +178,7 @@ internal sealed partial class MainForm
                         frames = new List<ExportFrame>(Math.Min(frameCount, 4096));
                         for (int i = 0; i < frameCount; i++)
                         {
-                            double time = i / (double)Math.Max(1, exportSettings.Fps);
+                            double time = i / (double)ExportService.GetEffectiveFps(exportSettings.Fps);
                             frames.Add(exportScene is not null
                                 ? _preview.CaptureExportFrame(exportScene, time)
                                 : _preview.CaptureExportFrame(time));
@@ -413,7 +414,7 @@ internal sealed partial class MainForm
 
     private static int SafeExportFrameCount(EffectSettings settings)
     {
-        double raw = settings.Duration * Math.Max(1.0, settings.Fps);
+        double raw = settings.Duration * ExportService.GetEffectiveFps(settings.Fps);
         if (double.IsNaN(raw) || double.IsInfinity(raw) || raw <= 0)
             throw new InvalidOperationException(Localization.English
                 ? "The current FPS/duration combination is invalid."

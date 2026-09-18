@@ -1,4 +1,5 @@
-using System.Globalization;
+#nullable enable
+
 using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;
@@ -63,7 +64,7 @@ $old = [Console]::CursorVisible
 try {
   [Console]::CursorVisible = $false
   [Console]::Clear()
-  $frameMs = 1000.0 / {{settings.Fps}}
+  $frameMs = 1000.0 / {{GetEffectiveFps(settings.Fps)}}
   $sw = [Diagnostics.Stopwatch]::StartNew()
   for($i=0; $i -lt $frames.Count; $i++) {
     [Console]::SetCursorPosition(0,0)
@@ -101,7 +102,7 @@ try {
 {{credit}}{{pseudo}}using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
-const int FPS={{settings.Fps}};
+const int FPS={{GetEffectiveFps(settings.Fps)}};
 const string PAYLOAD="""
 """");
             await writer.FlushAsync();
@@ -234,20 +235,9 @@ const frames=[
 
         await writer.WriteAsync("""
 ];
-const fps=
 """);
-        await writer.WriteAsync(settings.Fps.ToString(CultureInfo.InvariantCulture));
+        await writer.WriteAsync(BuildHtmlPlayerScript(settings.Fps));
         await writer.WriteAsync("""
-,screen=document.getElementById('s'),btn=document.getElementById('b');
-let play=true,start=performance.now(),off=0,hold=false,current=0;
-function pause(){if(play){off=performance.now()-start;play=false;btn.textContent='Play'}}
-btn.onclick=()=>{play=!play;btn.textContent=play?'Pause':'Play';if(play)start=performance.now()-off};
-screen.addEventListener('pointerdown',()=>hold=true);document.addEventListener('pointerup',()=>setTimeout(()=>hold=false,0));
-function selected(){const q=getSelection();return q&&!q.isCollapsed&&(screen.contains(q.anchorNode)||screen.contains(q.focusNode))}
-document.getElementById('copy').onclick=async()=>{try{await navigator.clipboard.writeText(frames[current].p)}catch{pause();const r=document.createRange();r.selectNodeContents(screen);const q=getSelection();q.removeAllRanges();q.addRange(r);document.execCommand('copy');q.removeAllRanges()}};
-document.getElementById('sel').onclick=()=>{pause();const r=document.createRange();r.selectNodeContents(screen);const q=getSelection();q.removeAllRanges();q.addRange(r)};
-function tick(n){if(play&&!hold&&!selected()){current=Math.floor((n-start)*fps/1000)%frames.length;screen.innerHTML=frames[current].r}requestAnimationFrame(tick)}
-screen.innerHTML=frames[0].r;requestAnimationFrame(tick);
 </script>
 </body>
 </html>

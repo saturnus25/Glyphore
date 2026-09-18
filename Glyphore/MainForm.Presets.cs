@@ -91,7 +91,7 @@ internal sealed partial class MainForm
 
     private void RebuildSpecific()
     {
-        _specificParams.Controls.Clear();
+        DisposeDynamicChildren(_specificParams);
         var specificKeys = ParameterCatalog.Specific.Values
             .SelectMany(group => group)
             .Select(parameter => parameter.Key)

@@ -65,7 +65,19 @@ try {
     }
     throw "ASCII Title pipeline smoke test failed with exit code $($titleSmoke.ExitCode)."
   }
-  Write-Host 'ASCII Title pipeline smoke test: OK (charset, letter spacing, custom-color defaults and scene save/load).' -ForegroundColor Green
+  Write-Host 'ASCII Title pipeline smoke test: OK (charset, letter/word spacing, auto-fit, custom-color defaults and scene save/load).' -ForegroundColor Green
+
+  Write-Host 'Validating animated HTML frames, timing, RGB/alpha, Unicode and title animation...' -ForegroundColor Cyan
+  $htmlSmoke = Start-Process -FilePath $smokeExe -ArgumentList '--self-test-html-export' -WorkingDirectory $smokeRoot -Wait -PassThru
+  if ($htmlSmoke.ExitCode -ne 0) {
+    $diag = Join-Path $smokeRoot 'html-export-smoke-error.txt'
+    if (Test-Path $diag) {
+      Write-Host 'Animated HTML smoke-test diagnostic:' -ForegroundColor Red
+      Get-Content $diag | Write-Host
+    }
+    throw "Animated HTML export smoke test failed with exit code $($htmlSmoke.ExitCode)."
+  }
+  Write-Host 'Animated HTML smoke test: OK (180 frames, timing, RGB/alpha, Unicode, title animations and static fallback).' -ForegroundColor Green
 
   Write-Host 'Validating Discord local RPC framing, partial reads, activity payloads and state priority...' -ForegroundColor Cyan
   $discordSmoke = Start-Process -FilePath $smokeExe -ArgumentList '--self-test-discord-rpc' -WorkingDirectory $smokeRoot -Wait -PassThru
@@ -90,6 +102,18 @@ try {
     throw "Detached-window smoke test failed with exit code $($windowSmoke.ExitCode)."
   }
   Write-Host 'Window smoke test: OK (native Windows frame, themed wheel scrolling, min/max/restore, monitor work area and ownerless detached lifecycle).' -ForegroundColor Green
+
+  Write-Host 'Stress-testing dynamic UI rebuild resource ownership...' -ForegroundColor Cyan
+  $handleSmoke = Start-Process -FilePath $smokeExe -ArgumentList '--self-test-ui-handles' -WorkingDirectory $smokeRoot -Wait -PassThru
+  if ($handleSmoke.ExitCode -ne 0) {
+    $diag = Join-Path $smokeRoot 'ui-handle-smoke-error.txt'
+    if (Test-Path $diag) {
+      Write-Host 'Dynamic UI handle smoke-test diagnostic:' -ForegroundColor Red
+      Get-Content $diag | Write-Host
+    }
+    throw "Dynamic UI handle stress test failed with exit code $($handleSmoke.ExitCode)."
+  }
+  Write-Host 'Dynamic UI handle stress test: OK (400 measured rebuild iterations without unbounded USER/GDI/handle growth).' -ForegroundColor Green
 }
 finally {
   if (Test-Path $smokeRoot) { Remove-Item $smokeRoot -Recurse -Force -ErrorAction SilentlyContinue }

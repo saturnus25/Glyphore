@@ -37,7 +37,7 @@ $old = [Console]::CursorVisible
 try {
   [Console]::CursorVisible = $false
   [Console]::Clear()
-  $frameMs = 1000.0 / {{settings.Fps}}
+  $frameMs = 1000.0 / {{GetEffectiveFps(settings.Fps)}}
   $sw = [Diagnostics.Stopwatch]::StartNew()
   for($i=0; $i -lt $frames.Count; $i++) {
     [Console]::SetCursorPosition(0,0)
@@ -56,11 +56,13 @@ try {
 
     private static void SaveHtml(string path, EffectSettings settings, List<ExportFrame> frames)
     {
-        var richFrames = frames.Select(frame => ColorizeHtml(frame, settings)).ToList();
-        var plainFrames = frames.Select(frame => frame.Text).ToList();
+        var htmlFrames = frames.Select(frame => new
+        {
+            r = ColorizeHtml(frame, settings),
+            p = frame.Text
+        }).ToList();
 
-        string richJson = JsonSerializer.Serialize(richFrames).Replace("</", "<\\/");
-        string plainJson = JsonSerializer.Serialize(plainFrames).Replace("</", "<\\/");
+        string framesJson = JsonSerializer.Serialize(htmlFrames).Replace("</", "<\\/");
         string attribution = settings.IncludeExportCredit
             ? $"<!-- {OutputAttribution.CreditEnglish} -->\n<meta name=\"generator\" content=\"{GeneratorName}\">"
             : string.Empty;
@@ -82,16 +84,8 @@ pre{font:14px/1 "Cascadia Mono",Consolas,monospace;white-space:pre;margin:48px;u
 <pre id="s"></pre>
 <div id="bar"><button id="b">Pause</button><button id="copy">Copy frame</button><button id="sel">Select frame</button></div>
 <script>
-const rich={{{richJson}}},plain={{{plainJson}}},fps={{{settings.Fps}}},screen=document.getElementById('s'),btn=document.getElementById('b');
-let play=true,start=performance.now(),off=0,hold=false,current=0;
-function pause(){if(play){off=performance.now()-start;play=false;btn.textContent='Play'}}
-btn.onclick=()=>{play=!play;btn.textContent=play?'Pause':'Play';if(play)start=performance.now()-off};
-screen.addEventListener('pointerdown',()=>hold=true);document.addEventListener('pointerup',()=>setTimeout(()=>hold=false,0));
-function selected(){const q=getSelection();return q&&!q.isCollapsed&&(screen.contains(q.anchorNode)||screen.contains(q.focusNode))}
-document.getElementById('copy').onclick=async()=>{try{await navigator.clipboard.writeText(plain[current])}catch{pause();const r=document.createRange();r.selectNodeContents(screen);const q=getSelection();q.removeAllRanges();q.addRange(r);document.execCommand('copy');q.removeAllRanges()}};
-document.getElementById('sel').onclick=()=>{pause();const r=document.createRange();r.selectNodeContents(screen);const q=getSelection();q.removeAllRanges();q.addRange(r)};
-function tick(n){if(play&&!hold&&!selected()){current=Math.floor((n-start)*fps/1000)%rich.length;screen.innerHTML=rich[current]}requestAnimationFrame(tick)}
-screen.innerHTML=rich[0];requestAnimationFrame(tick);
+const frames={{{framesJson}}};
+{{{BuildHtmlPlayerScript(settings.Fps)}}}
 </script>
 </body>
 </html>

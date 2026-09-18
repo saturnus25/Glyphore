@@ -83,7 +83,7 @@ internal static class AsciiTitlePrefabGenerator
         for (int i = 0; i < sourceLines.Length; i++)
         {
             string rendered;
-            if (spacing == 0)
+            if (spacing == 0 && !ContainsWhitespaceElement(sourceLines[i]))
             {
                 // Compatibility path: zero tracking is byte-for-byte the same rendering route
                 // Glyphoré used before title_letter_spacing existed, including FIGfont fitting
@@ -93,10 +93,9 @@ internal static class AsciiTitlePrefabGenerator
             }
             else
             {
-                // Figgle 0.6.6 exposes Render(string), but no public render option that adds a
-                // deterministic amount of tracking while preserving each FIGcharacter. Compose
-                // rendered input graphemes instead: blank columns are inserted only BETWEEN
-                // complete FIGcharacters, never between the columns that form one character.
+                // Compose whitespace explicitly instead of asking the FIGfont to render a tiny
+                // space FIGcharacter. This keeps word spacing independent from letter tracking.
+                // With zero tracking, complete words still take Figgle's original smushing path.
                 rendered = RenderLineWithSpacing(font, resolvedName, sourceLines[i], spacing);
             }
 
@@ -130,24 +129,71 @@ internal static class AsciiTitlePrefabGenerator
         while (enumerator.MoveNext())
             elements.Add(enumerator.GetTextElement());
 
-        if (elements.Count <= 1)
+        if (elements.Count <= 1 && !elements.Any(IsWhitespaceElement))
             return RenderPrepared(font, PrepareInput(font, fontName, source));
 
-        var blocks = new List<FigCharacterBlock>(elements.Count);
-        foreach (string element in elements)
-            blocks.Add(RenderFigCharacterBlock(font, fontName, element));
-
-        int height = Math.Max(1, blocks.Max(block => block.Rows.Length));
-        var rows = Enumerable.Range(0, height).Select(_ => new StringBuilder()).ToArray();
-        for (int index = 0; index < blocks.Count; index++)
+        var parts = new List<(FigCharacterBlock? Block, int WordSpaces)>();
+        if (spacing == 0)
         {
-            if (index > 0)
+            // Render each complete word in one call so Figgle retains the font's fitting and
+            // smushing rules inside that word. Whitespace is represented separately below.
+            var word = new StringBuilder();
+            foreach (string element in elements)
+            {
+                if (!IsWhitespaceElement(element))
+                {
+                    word.Append(element);
+                    continue;
+                }
+
+                FlushWord();
+                parts.Add((null, 1));
+            }
+            FlushWord();
+
+            void FlushWord()
+            {
+                if (word.Length == 0) return;
+                parts.Add((RenderFigCharacterBlock(font, fontName, word.ToString()), 0));
+                word.Clear();
+            }
+        }
+        else
+        {
+            foreach (string element in elements)
+            {
+                if (IsWhitespaceElement(element))
+                    parts.Add((null, 1));
+                else
+                    parts.Add((RenderFigCharacterBlock(font, fontName, element), 0));
+            }
+        }
+
+        FigCharacterBlock[] blocks = parts
+            .Where(part => part.Block.HasValue)
+            .Select(part => part.Block!.Value)
+            .ToArray();
+        int height = Math.Max(1, blocks.Length == 0 ? 1 : blocks.Max(block => block.Rows.Length));
+        int wordGap = CalculateWordGap(font, fontName, height, spacing);
+        var rows = Enumerable.Range(0, height).Select(_ => new StringBuilder()).ToArray();
+        bool previousWasGlyph = false;
+        foreach ((FigCharacterBlock? nullableBlock, int wordSpaces) in parts)
+        {
+            if (!nullableBlock.HasValue)
+            {
+                foreach (StringBuilder row in rows)
+                    row.Append(' ', wordGap * wordSpaces);
+                previousWasGlyph = false;
+                continue;
+            }
+
+            if (previousWasGlyph && spacing > 0)
             {
                 foreach (StringBuilder row in rows)
                     row.Append(' ', spacing);
             }
 
-            FigCharacterBlock block = blocks[index];
+            FigCharacterBlock block = nullableBlock.Value;
             for (int y = 0; y < rows.Length; y++)
             {
                 string row = y < block.Rows.Length ? block.Rows[y] : string.Empty;
@@ -155,9 +201,46 @@ internal static class AsciiTitlePrefabGenerator
                 if (row.Length < block.Width)
                     rows[y].Append(' ', block.Width - row.Length);
             }
+            previousWasGlyph = true;
         }
 
         return string.Join("\n", rows.Select(row => row.ToString().TrimEnd()));
+    }
+
+    private static int CalculateWordGap(FiggleFont font, string fontName, int renderedHeight, int letterSpacing)
+    {
+        // FIGfont height is the stable, font-independent metric for an em-like advance. Sample
+        // glyph widths keep very narrow/tall fonts readable without any font-name exceptions.
+        int[] sampleWidths = new[] { "A", "I", "M", "W" }
+            .Select(sample => RenderFigCharacterBlock(font, fontName, sample).Width)
+            .OrderBy(width => width)
+            .ToArray();
+        int typicalWidth = sampleWidths[sampleWidths.Length / 2];
+        int heightGap = (int)Math.Ceiling(renderedHeight * 0.75);
+        int widthGap = (int)Math.Ceiling(typicalWidth * 0.65);
+        // A word boundary remains distinguishable even at high tracking values, but it receives
+        // one explicit gap—not tracking on both sides of a FIGfont's tiny SPACE glyph.
+        return Math.Max(letterSpacing + 2, Math.Max(2, Math.Max(heightGap, widthGap)));
+    }
+
+    private static bool ContainsWhitespaceElement(string source)
+    {
+        TextElementEnumerator enumerator = StringInfo.GetTextElementEnumerator(source.Normalize(NormalizationForm.FormC));
+        while (enumerator.MoveNext())
+            if (IsWhitespaceElement(enumerator.GetTextElement()))
+                return true;
+        return false;
+    }
+
+    private static bool IsWhitespaceElement(string element)
+    {
+        bool foundRune = false;
+        foreach (Rune rune in element.EnumerateRunes())
+        {
+            foundRune = true;
+            if (!Rune.IsWhiteSpace(rune)) return false;
+        }
+        return foundRune;
     }
 
     private static FigCharacterBlock RenderFigCharacterBlock(FiggleFont font, string fontName, string textElement)

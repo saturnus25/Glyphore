@@ -20,7 +20,9 @@ internal static class Program
         new("--self-test-alpha-export", "Transparent-export self-test", "alpha-export-smoke-error.txt", 76, TransparentExportSmokeTest.Run),
         new("--self-test-title-pipeline", "ASCII Title pipeline self-test", "title-pipeline-smoke-error.txt", 75, DetachedWindowSmokeTest.RunTitlePipeline),
         new("--self-test-detached-windows", "Detached-window self-test", "detached-window-smoke-error.txt", 74, DetachedWindowSmokeTest.Run),
-        new("--self-test-third-party-licenses", "Third-party license self-test", "license-smoke-error.txt", 73, ThirdPartyLicenseUiSmokeTest.Run)
+        new("--self-test-third-party-licenses", "Third-party license self-test", "license-smoke-error.txt", 73, ThirdPartyLicenseUiSmokeTest.Run),
+        new("--self-test-ui-handles", "Dynamic UI handle stress test", "ui-handle-smoke-error.txt", 78, UiHandleLeakSmokeTest.Run),
+        new("--self-test-html-export", "Animated HTML export self-test", "html-export-smoke-error.txt", 79, HtmlExportSmokeTest.Run)
     ];
 
     [STAThread]

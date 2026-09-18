@@ -5,7 +5,7 @@ internal sealed partial class MainForm
     private void ApplyLanguage()
     {
         foreach (Control c in Controls) ApplyLanguageRecursive(c);
-        _generalParams.Controls.Clear();
+        DisposeDynamicChildren(_generalParams);
         foreach (var key in ParameterCatalog.General.Select(x=>x.Key)) _paramRows.Remove(key);
         foreach (var d in ParameterCatalog.General) AddParamRow(_generalParams,d);
         RebuildSpecific();

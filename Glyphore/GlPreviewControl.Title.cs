@@ -264,7 +264,10 @@ internal sealed partial class GlPreviewControl
                 string element = elements[index];
                 graphics.DrawString(element, font, brush, new PointF(x, y), format);
                 x += MeasureTextElement(graphics, element, font, format);
-                if (index != elements.Count - 1) x += trackingPx;
+                if (index != elements.Count - 1 &&
+                    !IsWhitespaceTextElement(element) &&
+                    !IsWhitespaceTextElement(elements[index + 1]))
+                    x += trackingPx;
             }
             y += lineHeight;
         }
@@ -277,9 +280,15 @@ internal sealed partial class GlPreviewControl
     {
         if (elements.Count == 0) return 0f;
         float width = 0f;
-        foreach (string element in elements)
-            width += MeasureTextElement(graphics, element, font, format);
-        return width + trackingPx * Math.Max(0, elements.Count - 1);
+        for (int index = 0; index < elements.Count; index++)
+        {
+            width += MeasureTextElement(graphics, elements[index], font, format);
+            if (index != elements.Count - 1 &&
+                !IsWhitespaceTextElement(elements[index]) &&
+                !IsWhitespaceTextElement(elements[index + 1]))
+                width += trackingPx;
+        }
+        return width;
     }
 
     private static float MeasureTextElement(Graphics graphics, string element, Font font, StringFormat format)
@@ -292,6 +301,25 @@ internal sealed partial class GlPreviewControl
         while (enumerator.MoveNext())
             elements.Add(enumerator.GetTextElement());
         return elements;
+    }
+
+    private static bool IsWhitespaceTextElement(string element)
+    {
+        bool foundRune = false;
+        foreach (Rune rune in element.EnumerateRunes())
+        {
+            foundRune = true;
+            if (!Rune.IsWhiteSpace(rune)) return false;
+        }
+        return foundRune;
+    }
+
+    internal static float MeasureSystemFontTrackedWidthForTest(string text, float trackingPx)
+    {
+        using var bitmap = new Bitmap(16, 16, PixelFormat.Format32bppArgb);
+        using Graphics graphics = Graphics.FromImage(bitmap);
+        using var font = new Font("Consolas", 24f, FontStyle.Regular, GraphicsUnit.Pixel);
+        return MeasureTrackedText(graphics, text, font, trackingPx).Width;
     }
 
     private static Rectangle FindVisibleInkBounds(Bitmap bitmap)
@@ -415,6 +443,27 @@ internal sealed partial class GlPreviewControl
 
         return mask;
     }
+
+    internal static byte[] BuildGeneratedPrefabGridForTest(
+        string text,
+        string prefab,
+        int width,
+        int height,
+        float titleScale,
+        int letterSpacing,
+        float titleX = 0f,
+        float titleY = 0f)
+        => BuildGeneratedPrefabGrid(
+            text,
+            prefab,
+            width,
+            height,
+            .92f,
+            .84f,
+            titleScale,
+            letterSpacing,
+            titleX,
+            titleY);
 
 
 }

@@ -218,6 +218,167 @@ internal static class DetachedWindowSmokeTest
         string singleEight = AsciiTitlePrefabGenerator.Generate("W", prefab, 8);
         if (!string.Equals(singleZero, singleEight, StringComparison.Ordinal))
             throw new InvalidOperationException("Letter spacing altered the internal geometry of a single FIGcharacter.");
+
+        AssertWordSpacingInvariants();
+    }
+
+    private static void AssertWordSpacingInvariants()
+    {
+        string[] prefabs =
+        [
+            "FIGlet · Standard",
+            "FIGlet · Slant",
+            "FIGlet · ANSI Shadow",
+            "FIGlet · Big",
+            "FIGlet · Bigfig"
+        ];
+        int[] trackingValues = [0, 1, 2, 4, 8];
+        string[] representativeInputs =
+        [
+            "GLYPHORÉ STUDIO",
+            "ASCII WITHOUT LIMITS",
+            "III WWW",
+            "WWW III"
+        ];
+
+        foreach (string font in prefabs)
+        foreach (int tracking in trackingValues)
+        {
+            int joinedGap = LargestInteriorBlankColumnRun(
+                AsciiTitlePrefabGenerator.Generate("HELLOWORLD", font, tracking));
+            int oneSpaceGap = LargestInteriorBlankColumnRun(
+                AsciiTitlePrefabGenerator.Generate("HELLO WORLD", font, tracking));
+            int twoSpaceGap = LargestInteriorBlankColumnRun(
+                AsciiTitlePrefabGenerator.Generate("HELLO  WORLD", font, tracking));
+
+            if (oneSpaceGap < 2 || oneSpaceGap <= joinedGap)
+                throw new InvalidOperationException(
+                    $"Word spacing is not visibly distinct for {font}, tracking {tracking}: " +
+                    $"joined={joinedGap}, one-space={oneSpaceGap}.");
+            if (twoSpaceGap <= oneSpaceGap)
+                throw new InvalidOperationException(
+                    $"Repeated spaces are not monotonic for {font}, tracking {tracking}: " +
+                    $"one-space={oneSpaceGap}, two-space={twoSpaceGap}.");
+
+            foreach (string input in representativeInputs)
+            {
+                int gap = LargestInteriorBlankColumnRun(
+                    AsciiTitlePrefabGenerator.Generate(input, font, tracking));
+                if (gap < 2)
+                    throw new InvalidOperationException(
+                        $"'{input}' has no readable word gap for {font}, tracking {tracking}.");
+            }
+        }
+
+        // The preview rasterizer applies auto-fit after FIGlet composition. Verify that the
+        // explicit word gap remains visible and monotonic at small/default/large Title Size.
+        foreach (float titleScale in new[] { .5f, 1f, 1.5f })
+        {
+            byte[] joined = GlPreviewControl.BuildGeneratedPrefabGridForTest(
+                "HELLOWORLD", "FIGlet · Standard", 480, 160, titleScale, 2);
+            byte[] oneSpace = GlPreviewControl.BuildGeneratedPrefabGridForTest(
+                "HELLO WORLD", "FIGlet · Standard", 480, 160, titleScale, 2);
+            byte[] twoSpaces = GlPreviewControl.BuildGeneratedPrefabGridForTest(
+                "HELLO  WORLD", "FIGlet · Standard", 480, 160, titleScale, 2);
+            int joinedGap = LargestInteriorBlankMaskColumnRun(joined, 480, 160);
+            int oneSpaceGap = LargestInteriorBlankMaskColumnRun(oneSpace, 480, 160);
+            int twoSpaceGap = LargestInteriorBlankMaskColumnRun(twoSpaces, 480, 160);
+
+            if (oneSpaceGap <= joinedGap || twoSpaceGap < oneSpaceGap)
+                throw new InvalidOperationException(
+                    $"Auto-fit erased the FIGlet word gap at Title Size {titleScale:0.0}: " +
+                    $"joined={joinedGap}, one-space={oneSpaceGap}, two-space={twoSpaceGap}.");
+        }
+
+        byte[] trimmed = GlPreviewControl.BuildGeneratedPrefabGridForTest(
+            "HELLO WORLD", "FIGlet · Standard", 480, 160, 1f, 2);
+        byte[] padded = GlPreviewControl.BuildGeneratedPrefabGridForTest(
+            "   HELLO WORLD   ", "FIGlet · Standard", 480, 160, 1f, 2);
+        if (!trimmed.AsSpan().SequenceEqual(padded))
+            throw new InvalidOperationException("Leading/trailing spaces displaced the auto-fitted FIGlet title.");
+
+        byte[] multiline = GlPreviewControl.BuildGeneratedPrefabGridForTest(
+            "GLYPHORÉ STUDIO\nASCII  WITHOUT LIMITS", "FIGlet · Slant", 480, 200, 1f, 4);
+        if (!multiline.Any(value => value != 0))
+            throw new InvalidOperationException("Multiline Unicode FIGlet word-spacing geometry rendered empty.");
+
+        Rectangle left = MaskInkBounds(GlPreviewControl.BuildGeneratedPrefabGridForTest(
+            "HELLO WORLD", "FIGlet · Standard", 480, 160, .75f, 2, -1f, 0f), 480, 160);
+        Rectangle center = MaskInkBounds(GlPreviewControl.BuildGeneratedPrefabGridForTest(
+            "HELLO WORLD", "FIGlet · Standard", 480, 160, .75f, 2, 0f, 0f), 480, 160);
+        Rectangle right = MaskInkBounds(GlPreviewControl.BuildGeneratedPrefabGridForTest(
+            "HELLO WORLD", "FIGlet · Standard", 480, 160, .75f, 2, 1f, 0f), 480, 160);
+        if (left.IsEmpty || center.IsEmpty || right.IsEmpty || left.Left >= center.Left || center.Left >= right.Left)
+            throw new InvalidOperationException("FIGlet Position X no longer moves word-spaced titles monotonically.");
+
+        float joinedSystemZero = GlPreviewControl.MeasureSystemFontTrackedWidthForTest("HE", 0f);
+        float joinedSystemEight = GlPreviewControl.MeasureSystemFontTrackedWidthForTest("HE", 8f);
+        float spacedSystemZero = GlPreviewControl.MeasureSystemFontTrackedWidthForTest("H E", 0f);
+        float spacedSystemEight = GlPreviewControl.MeasureSystemFontTrackedWidthForTest("H E", 8f);
+        if (joinedSystemEight - joinedSystemZero < 7f)
+            throw new InvalidOperationException("System Font letter tracking was not applied between letters.");
+        if (Math.Abs(spacedSystemEight - spacedSystemZero) > .5f)
+            throw new InvalidOperationException("System Font word spacing accidentally received letter tracking on both sides.");
+    }
+
+    private static int LargestInteriorBlankColumnRun(string art)
+    {
+        string[] lines = art.Replace("\r", string.Empty).Split('\n');
+        int width = lines.Length == 0 ? 0 : lines.Max(line => line.Length);
+        var occupied = new bool[width];
+        foreach (string line in lines)
+        for (int x = 0; x < line.Length; x++)
+            occupied[x] |= !char.IsWhiteSpace(line[x]);
+        return LargestInteriorFalseRun(occupied);
+    }
+
+    private static int LargestInteriorBlankMaskColumnRun(byte[] mask, int width, int height)
+    {
+        var occupied = new bool[width];
+        for (int y = 0; y < height; y++)
+        for (int x = 0; x < width; x++)
+            occupied[x] |= mask[(y * width + x) * 4 + 3] != 0;
+        return LargestInteriorFalseRun(occupied);
+    }
+
+    private static Rectangle MaskInkBounds(byte[] mask, int width, int height)
+    {
+        int minX = width, minY = height, maxX = -1, maxY = -1;
+        for (int y = 0; y < height; y++)
+        for (int x = 0; x < width; x++)
+        {
+            if (mask[(y * width + x) * 4 + 3] == 0) continue;
+            minX = Math.Min(minX, x);
+            minY = Math.Min(minY, y);
+            maxX = Math.Max(maxX, x);
+            maxY = Math.Max(maxY, y);
+        }
+        return maxX < minX || maxY < minY
+            ? Rectangle.Empty
+            : Rectangle.FromLTRB(minX, minY, maxX + 1, maxY + 1);
+    }
+
+    private static int LargestInteriorFalseRun(bool[] occupied)
+    {
+        int first = Array.FindIndex(occupied, value => value);
+        int last = Array.FindLastIndex(occupied, value => value);
+        if (first < 0 || last <= first) return 0;
+
+        int largest = 0;
+        int current = 0;
+        for (int x = first; x <= last; x++)
+        {
+            if (!occupied[x])
+            {
+                current++;
+                largest = Math.Max(largest, current);
+            }
+            else
+            {
+                current = 0;
+            }
+        }
+        return largest;
     }
 
     private static int AsciiArtWidth(string value)

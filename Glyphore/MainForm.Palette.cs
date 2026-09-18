@@ -41,7 +41,7 @@ internal sealed partial class MainForm
 
     private void RebuildPaletteStops()
     {
-        _paletteStops.Controls.Clear();
+        DisposeDynamicChildren(_paletteStops);
         int x = 2;
         for (int i = 0; i < _settings.PaletteStops.Count; i++)
         {

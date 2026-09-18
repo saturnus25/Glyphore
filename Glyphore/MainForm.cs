@@ -33,6 +33,7 @@ internal sealed partial class MainForm : GlyphoreWindow
     private readonly ToolTip _tips = new() { InitialDelay = 500, ReshowDelay = 100, AutoPopDelay = 10000, ShowAlways = true };
     private Icon? _windowIcon;
     private readonly DetachedWindowManager _detachedWindows;
+    private bool _mainResourcesDisposed;
 
     public MainForm()
     {
@@ -52,12 +53,6 @@ internal sealed partial class MainForm : GlyphoreWindow
         ShowIcon = true;
         _windowIcon = LoadApplicationIcon();
         if (_windowIcon is not null) Icon = _windowIcon;
-        FormClosed += (_, _) =>
-        {
-            _detachedWindows.Dispose();
-            _windowIcon?.Dispose();
-        };
-
         BuildUi();
         PopulateData();
         ApplyPreset(_preset.Items.Count > 0 ? _preset.Items[0]!.ToString()! : "");
@@ -91,6 +86,23 @@ internal sealed partial class MainForm : GlyphoreWindow
 
         InitializeDiscordPresence();
         UpdateDiscordPresenceContext();
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing && !_mainResourcesDisposed)
+        {
+            _mainResourcesDisposed = true;
+            Application.RemoveMessageFilter(_discordActivityFilter);
+            _importTimer.Stop();
+            _importTimer.Dispose();
+            _tips.Dispose();
+            _detachedWindows.Dispose();
+            _windowIcon?.Dispose();
+            _windowIcon = null;
+        }
+
+        base.Dispose(disposing);
     }
 
     private static Icon? LoadApplicationIcon()
