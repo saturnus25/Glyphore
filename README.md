@@ -1,16 +1,18 @@
 <p align="center">
   <img src="Glyphore/Assets/Glyphore-Logo.png" alt="Glyphoré — Procedural Character Art Studio" width="920" />
 </p>
-<img width="1919" height="1031" alt="image" src="https://github.com/user-attachments/assets/d263a8c4-4f83-4c56-bad4-251845e8e820" />
 
+# Glyphoré
 
-# Glyphoré 6.0.2
+[![Latest release](https://img.shields.io/github/v/release/saturnus25/Glyphore?style=for-the-badge&logo=github&color=287a99)](https://github.com/saturnus25/Glyphore/releases/latest)
 
-**English** | [Español](#español)
+[Download](https://github.com/saturnus25/Glyphore/releases/latest) · [Build](#build) · [Requirements](#requirements) · [Ideas](https://github.com/saturnus25/Glyphore/discussions/categories/ideas) · [Español](#español)
 
 Glyphoré is a GPU-accelerated procedural character art studio developed and officially supported for Windows. It lets you create, customize, animate and export ASCII/Unicode scenes without having to program the effects yourself. Glyphoré has also been confirmed to run on Linux through Wine, although Wine compatibility is currently experimental and some features or visual behavior may differ from Windows.
 
 The live preview is rendered directly with OpenGL, while exported character output remains real selectable and copyable text.
+
+<img width="1919" height="1031" alt="image" src="https://github.com/user-attachments/assets/d263a8c4-4f83-4c56-bad4-251845e8e820" />
 
 ## Highlights
 
